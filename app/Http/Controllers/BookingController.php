@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Models\Reservation;
 use App\Models\Slot;
+use App\Services\MailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -110,6 +111,11 @@ class BookingController extends Controller
 
             return $reservation;
         });
+
+        $tenant = app('tenant') ?? $event->tenant;
+        $mailService = new MailService();
+        $mailService->sendReservationConfirm($reservation, $tenant);
+        $mailService->sendAdminNotify($reservation, $tenant);
 
         return redirect()->route('public.done', $reservation->code);
     }

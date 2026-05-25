@@ -12,6 +12,7 @@ class Tenant extends Model
         'industry',
         'logo_path',
         'color',
+        'notify_email',
         'status',
         'features',
         'stripe_customer_id',
