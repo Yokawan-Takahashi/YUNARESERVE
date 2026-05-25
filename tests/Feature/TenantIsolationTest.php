@@ -38,7 +38,7 @@ class TenantIsolationTest extends TestCase
 
     private function actAsSuperAdmin(): void
     {
-        app()->instance('tenant', null);
+        app()->forgetInstance('tenant');
     }
 
     /** テナントAとしてカテゴリを作ると tenant_id が自動セットされる */

@@ -1,12 +1,22 @@
 <?php
 
+use App\Http\Controllers\PublicEventController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\EventController;
+use App\Http\Controllers\Admin\FormFieldController;
+use App\Http\Controllers\Admin\SlotController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// 公開側（tenant.resolve ミドルウェアは本番サブドメイン環境でのみ適用）
+Route::get('/', [PublicEventController::class, 'index'])->name('public.index');
+Route::get('/events/{event}', [PublicEventController::class, 'show'])->name('public.events.show');
+// T5で実装（予約フォーム・完了）
+Route::get('/events/{event}/book/{slot}', fn() => abort(501))->name('public.book');
+Route::post('/events/{event}/book/{slot}', fn() => abort(501))->name('public.book.store');
+Route::get('/done/{code}', fn() => abort(501))->name('public.done');
+Route::get('/cancel/{token}', fn() => abort(501))->name('public.cancel');
 
 // Breeze互換エイリアス（認証後のリダイレクト先）
 Route::get('/dashboard', function () {
@@ -16,6 +26,21 @@ Route::get('/dashboard', function () {
 // 管理画面（要ログイン・viewer以上）
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:viewer'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // カテゴリ（staff以上で編集可）
+    Route::resource('categories', CategoryController::class)->except(['show']);
+
+    // イベント・枠
+    Route::resource('events', EventController::class);
+    Route::post('events/{event}/slots', [SlotController::class, 'store'])->name('events.slots.store');
+    Route::put('events/{event}/slots/{slot}', [SlotController::class, 'update'])->name('events.slots.update');
+    Route::delete('events/{event}/slots/{slot}', [SlotController::class, 'destroy'])->name('events.slots.destroy');
+
+    // カスタム項目
+    Route::get('fields', [FormFieldController::class, 'index'])->name('fields.index');
+    Route::post('fields', [FormFieldController::class, 'store'])->name('fields.store');
+    Route::put('fields/{field}', [FormFieldController::class, 'update'])->name('fields.update');
+    Route::delete('fields/{field}', [FormFieldController::class, 'destroy'])->name('fields.destroy');
 });
 
 // Breeze プロフィール

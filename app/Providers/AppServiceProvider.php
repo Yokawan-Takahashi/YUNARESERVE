@@ -11,8 +11,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // テナント未解決時のデフォルト（テスト・CLI・superadmin文脈で null = スコープなし）
-        $this->app->instance('tenant', null);
+        // テナント未解決時のデフォルト（CLI・superadmin文脈でnull返却）
+        // instance(null) は isset で検知されないため bind クロージャで登録
+        $this->app->bind('tenant', fn() => null);
     }
 
     /**
