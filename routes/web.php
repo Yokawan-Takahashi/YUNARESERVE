@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PublicEventController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -12,10 +13,11 @@ use Illuminate\Support\Facades\Route;
 // 公開側（tenant.resolve ミドルウェアは本番サブドメイン環境でのみ適用）
 Route::get('/', [PublicEventController::class, 'index'])->name('public.index');
 Route::get('/events/{event}', [PublicEventController::class, 'show'])->name('public.events.show');
-// T5で実装（予約フォーム・完了）
-Route::get('/events/{event}/book/{slot}', fn() => abort(501))->name('public.book');
-Route::post('/events/{event}/book/{slot}', fn() => abort(501))->name('public.book.store');
-Route::get('/done/{code}', fn() => abort(501))->name('public.done');
+// 予約フォーム・完了（T5）
+Route::get('/events/{event}/book/{slot}', [BookingController::class, 'show'])->name('public.book');
+Route::post('/events/{event}/book/{slot}', [BookingController::class, 'store'])->name('public.book.store');
+Route::get('/done/{code}', [BookingController::class, 'done'])->name('public.done');
+// キャンセル（T7で実装）
 Route::get('/cancel/{token}', fn() => abort(501))->name('public.cancel');
 
 // Breeze互換エイリアス（認証後のリダイレクト先）
