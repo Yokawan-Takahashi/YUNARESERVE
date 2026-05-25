@@ -3,7 +3,13 @@
 @section('content')
 <div class="flex items-center justify-between mb-4">
     <h1 class="text-xl font-bold">予約一覧</h1>
-    <span class="text-sm text-gray-500">{{ $reservations->total() }} 件</span>
+    <div class="flex items-center gap-3">
+        <span class="text-sm text-gray-500">{{ $reservations->total() }} 件</span>
+        <a href="{{ route('admin.reservations.export', request()->query()) }}"
+           class="bg-green-600 text-white px-4 py-1.5 rounded text-sm hover:bg-green-700">
+            CSVダウンロード
+        </a>
+    </div>
 </div>
 
 {{-- 絞り込みフォーム --}}

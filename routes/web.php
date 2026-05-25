@@ -44,6 +44,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:viewer'])->gro
 
     // 予約者管理
     Route::get('reservations', [ReservationController::class, 'index'])->name('reservations.index');
+    Route::get('reservations/export', [ReservationController::class, 'export'])->name('reservations.export');
     Route::get('reservations/{reservation}', [ReservationController::class, 'show'])->name('reservations.show');
     Route::patch('reservations/{reservation}/status', [ReservationController::class, 'updateStatus'])->name('reservations.status');
     Route::patch('reservations/{reservation}/memo', [ReservationController::class, 'updateMemo'])->name('reservations.memo');
