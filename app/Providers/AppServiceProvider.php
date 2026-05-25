@@ -11,7 +11,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // テナント未解決時のデフォルト（テスト・CLI・superadmin文脈で null = スコープなし）
+        $this->app->instance('tenant', null);
     }
 
     /**
