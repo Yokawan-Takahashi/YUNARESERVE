@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\FormFieldController;
+use App\Http\Controllers\Admin\ReservationController;
 use App\Http\Controllers\Admin\SlotController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +41,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:viewer'])->gro
     Route::post('events/{event}/slots', [SlotController::class, 'store'])->name('events.slots.store');
     Route::put('events/{event}/slots/{slot}', [SlotController::class, 'update'])->name('events.slots.update');
     Route::delete('events/{event}/slots/{slot}', [SlotController::class, 'destroy'])->name('events.slots.destroy');
+
+    // 予約者管理
+    Route::get('reservations', [ReservationController::class, 'index'])->name('reservations.index');
+    Route::get('reservations/{reservation}', [ReservationController::class, 'show'])->name('reservations.show');
+    Route::patch('reservations/{reservation}/status', [ReservationController::class, 'updateStatus'])->name('reservations.status');
+    Route::patch('reservations/{reservation}/memo', [ReservationController::class, 'updateMemo'])->name('reservations.memo');
 
     // カスタム項目
     Route::get('fields', [FormFieldController::class, 'index'])->name('fields.index');

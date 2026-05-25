@@ -10,6 +10,7 @@
     <nav class="bg-indigo-700 text-white px-6 py-3 flex items-center justify-between">
         <div class="flex items-center gap-6">
             <a href="{{ route('admin.dashboard') }}" class="font-bold text-lg">{{ config('app.name') }}</a>
+            <a href="{{ route('admin.reservations.index') }}" class="text-sm hover:underline">予約管理</a>
             <a href="{{ route('admin.events.index') }}" class="text-sm hover:underline">イベント</a>
             <a href="{{ route('admin.categories.index') }}" class="text-sm hover:underline">カテゴリ</a>
             <a href="{{ route('admin.fields.index') }}" class="text-sm hover:underline">カスタム項目</a>
