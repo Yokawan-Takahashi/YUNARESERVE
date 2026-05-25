@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Mail\ReservationAdminNotifyMail;
+use App\Mail\ReservationCancelMail;
 use App\Mail\ReservationConfirmMail;
 use App\Models\MailLog;
 use App\Models\Reservation;
@@ -45,6 +46,22 @@ class MailService
             'reservation_id' => $reservation->id,
             'type'           => 'admin_notify',
             'to'             => $notifyEmail,
+            'sent_at'        => now(),
+        ]);
+    }
+
+    public function sendCancelConfirm(Reservation $reservation, Tenant $tenant): void
+    {
+        $reservation->load(['event', 'slot']);
+
+        Mail::to($reservation->email)
+            ->send(new ReservationCancelMail($reservation, $tenant));
+
+        MailLog::create([
+            'tenant_id'      => $tenant->id,
+            'reservation_id' => $reservation->id,
+            'type'           => 'cancel_confirm',
+            'to'             => $reservation->email,
             'sent_at'        => now(),
         ]);
     }

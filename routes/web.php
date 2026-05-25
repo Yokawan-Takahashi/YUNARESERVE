@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\CancelController;
 use App\Http\Controllers\PublicEventController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -17,8 +18,10 @@ Route::get('/events/{event}', [PublicEventController::class, 'show'])->name('pub
 Route::get('/events/{event}/book/{slot}', [BookingController::class, 'show'])->name('public.book');
 Route::post('/events/{event}/book/{slot}', [BookingController::class, 'store'])->name('public.book.store');
 Route::get('/done/{code}', [BookingController::class, 'done'])->name('public.done');
-// キャンセル（T7で実装）
-Route::get('/cancel/{token}', fn() => abort(501))->name('public.cancel');
+// キャンセル（T7）
+Route::get('/cancel/{token}', [CancelController::class, 'show'])->name('public.cancel');
+Route::delete('/cancel/{token}', [CancelController::class, 'destroy'])->name('public.cancel.destroy');
+Route::get('/cancel/{token}/done', [CancelController::class, 'done'])->name('public.cancel.done');
 
 // Breeze互換エイリアス（認証後のリダイレクト先）
 Route::get('/dashboard', function () {
