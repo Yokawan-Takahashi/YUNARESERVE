@@ -11,9 +11,18 @@ class ResolveTenant
 {
     public function handle(Request $request, Closure $next): Response
     {
+        // テスト・ローカル開発で既にテナントがセットされていれば解決済みとみなす
+        if (app()->bound('tenant')) {
+            return $next($request);
+        }
+
         $host = $request->getHost();
-        // slug.yunari-reserve.jp 形式からslugを抽出
         $slug = explode('.', $host)[0];
+
+        // ローカル開発用: APP_TENANT_SLUG が設定されていればそれを使う
+        if (app()->environment('local', 'testing') && $envSlug = config('app.tenant_slug')) {
+            $slug = $envSlug;
+        }
 
         $tenant = Tenant::where('slug', $slug)->where('status', 'active')->first();
 

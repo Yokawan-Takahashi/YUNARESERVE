@@ -32,6 +32,14 @@ class SlotController extends Controller
         return redirect()->route('admin.events.edit', $event)->with('success', '枠を更新しました');
     }
 
+    public function toggleStatus(\App\Models\Event $event, \App\Models\Slot $slot)
+    {
+        $newStatus = $slot->status === 'closed' ? 'open' : 'closed';
+        $slot->update(['status' => $newStatus]);
+        $label = $newStatus === 'closed' ? '受付を停止しました' : '受付を再開しました';
+        return back()->with('success', $label);
+    }
+
     public function destroy(\App\Models\Event $event, \App\Models\Slot $slot)
     {
         $slot->delete();

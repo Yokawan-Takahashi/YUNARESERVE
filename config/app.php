@@ -54,6 +54,8 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'tenant_slug' => env('APP_TENANT_SLUG'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

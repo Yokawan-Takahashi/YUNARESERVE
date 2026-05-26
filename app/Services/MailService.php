@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Mail\ReservationAdminNotifyMail;
 use App\Mail\ReservationCancelMail;
 use App\Mail\ReservationConfirmMail;
+use App\Mail\ReservationReminderMail;
 use App\Models\MailLog;
 use App\Models\Reservation;
 use App\Models\Tenant;
@@ -61,6 +62,22 @@ class MailService
             'tenant_id'      => $tenant->id,
             'reservation_id' => $reservation->id,
             'type'           => 'cancel_confirm',
+            'to'             => $reservation->email,
+            'sent_at'        => now(),
+        ]);
+    }
+
+    public function sendReminder(Reservation $reservation, Tenant $tenant): void
+    {
+        $reservation->load(['event', 'slot']);
+
+        Mail::to($reservation->email)
+            ->send(new ReservationReminderMail($reservation, $tenant));
+
+        MailLog::create([
+            'tenant_id'      => $tenant->id,
+            'reservation_id' => $reservation->id,
+            'type'           => 'reminder',
             'to'             => $reservation->email,
             'sent_at'        => now(),
         ]);

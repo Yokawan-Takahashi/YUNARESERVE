@@ -69,7 +69,7 @@ class ReservationAdminTest extends TestCase
     {
         $response = $this->actingAs($this->admin)->get('/admin');
         $response->assertStatus(200);
-        $response->assertSee('今日の予約');
+        $response->assertSee('今日の新規予約');
         $response->assertSee('今週の予約');
         $response->assertSee('累計予約');
     }

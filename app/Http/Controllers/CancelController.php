@@ -9,6 +9,15 @@ use Illuminate\Support\Facades\DB;
 
 class CancelController extends Controller
 {
+    private function checkCancelDeadline(Reservation $reservation, $tenant): bool
+    {
+        if (!$tenant || $tenant->cancel_deadline_days === null) {
+            return true;
+        }
+        $deadline = $reservation->slot->date->subDays($tenant->cancel_deadline_days)->endOfDay();
+        return now()->lte($deadline);
+    }
+
     public function show(string $token)
     {
         $reservation = Reservation::withoutGlobalScopes()
@@ -17,8 +26,9 @@ class CancelController extends Controller
             ->firstOrFail();
 
         $tenant = app('tenant') ?? $reservation->tenant;
+        $canCancel = $this->checkCancelDeadline($reservation, $tenant);
 
-        return view('public.cancel', compact('reservation', 'tenant'));
+        return view('public.cancel', compact('reservation', 'tenant', 'canCancel'));
     }
 
     public function destroy(string $token)
@@ -33,6 +43,12 @@ class CancelController extends Controller
                 ->withErrors(['cancel' => 'この予約はすでにキャンセル済みです。']);
         }
 
+        $tenant = app('tenant') ?? $reservation->tenant;
+        if (!$this->checkCancelDeadline($reservation, $tenant)) {
+            return redirect()->route('public.cancel', $token)
+                ->withErrors(['cancel' => 'キャンセル受付期限を過ぎています。']);
+        }
+
         DB::transaction(function () use ($reservation) {
             $reservation->update(['status' => 'cancelled']);
 
@@ -45,7 +61,6 @@ class CancelController extends Controller
             }
         });
 
-        $tenant = app('tenant') ?? $reservation->tenant;
         $mailService = new MailService();
         $mailService->sendCancelConfirm($reservation, $tenant);
 

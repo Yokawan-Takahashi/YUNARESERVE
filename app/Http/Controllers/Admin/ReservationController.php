@@ -5,12 +5,101 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Reservation;
+use App\Models\Slot;
+use App\Services\MailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReservationController extends Controller
 {
+    public function create()
+    {
+        $events = Event::with(['slots' => fn($q) => $q->orderBy('date')->orderBy('start_time')])
+            ->where('status', 'published')
+            ->orderBy('title')
+            ->get();
+
+        $eventsJson = $events->map(fn($e) => [
+            'id'    => $e->id,
+            'title' => $e->title,
+            'slots' => $e->slots->map(fn($s) => [
+                'id'        => $s->id,
+                'label'     => $s->date->format('Y/m/d') . ' ' . substr($s->start_time, 0, 5)
+                    . ($s->end_time ? ' 〜 ' . substr($s->end_time, 0, 5) : ''),
+                'remaining' => $s->remainingCapacity(),
+                'status'    => $s->status,
+            ])->values()->toArray(),
+        ])->values()->toArray();
+
+        return view('admin.reservations.create', compact('eventsJson'));
+    }
+
+    public function adminStore(Request $request)
+    {
+        $validated = $request->validate([
+            'event_id'   => 'required|exists:events,id',
+            'slot_id'    => 'required|exists:slots,id',
+            'name'       => 'required|string|max:100',
+            'kana'       => 'nullable|string|max:100',
+            'email'      => 'required|email:rfc',
+            'phone'      => ['nullable', 'string', 'max:20'],
+            'companions' => 'nullable|integer|min:0|max:99',
+            'memo'       => 'nullable|string|max:1000',
+        ]);
+
+        $event = Event::findOrFail($validated['event_id']);
+        $slot  = Slot::findOrFail($validated['slot_id']);
+        abort_if($slot->event_id !== $event->id, 422, '枠とイベントが一致しません');
+
+        $reservation = DB::transaction(function () use ($validated, $event, $slot) {
+            $lockedSlot = Slot::lockForUpdate()->find($slot->id);
+
+            $duplicate = Reservation::where('slot_id', $slot->id)
+                ->where('email', $validated['email'])
+                ->where('status', 'reserved')
+                ->exists();
+
+            if ($duplicate) {
+                throw ValidationException::withMessages([
+                    'email' => 'このメールアドレスはすでに同じ枠に予約済みです。',
+                ]);
+            }
+
+            $reservation = Reservation::create([
+                'tenant_id'    => $event->tenant_id,
+                'code'         => Reservation::generateCode(),
+                'event_id'     => $event->id,
+                'slot_id'      => $slot->id,
+                'name'         => $validated['name'],
+                'kana'         => $validated['kana'] ?? null,
+                'email'        => $validated['email'],
+                'phone'        => $validated['phone'] ?? null,
+                'companions'   => $validated['companions'] ?? 0,
+                'status'       => 'reserved',
+                'memo'         => $validated['memo'] ?? null,
+                'cancel_token' => Reservation::generateCancelToken(),
+            ]);
+
+            $lockedSlot->increment('reserved_count');
+            if ($lockedSlot->fresh()->isFull()) {
+                $lockedSlot->update(['status' => 'full']);
+            }
+
+            return $reservation;
+        });
+
+        if ($request->boolean('send_email', true)) {
+            $tenant = auth()->user()->tenant;
+            $mailService = new MailService();
+            $mailService->sendReservationConfirm($reservation, $tenant);
+        }
+
+        return redirect()->route('admin.reservations.show', $reservation)
+            ->with('success', '予約を手動登録しました。');
+    }
+
     public function index(Request $request)
     {
         $query = Reservation::with(['event', 'slot'])
@@ -156,5 +245,39 @@ class ReservationController extends Controller
         $reservation->update(['memo' => $request->memo]);
 
         return back()->with('success', 'メモを更新しました。');
+    }
+
+    public function edit(Reservation $reservation)
+    {
+        $reservation->load(['event', 'slot']);
+        return view('admin.reservations.edit', compact('reservation'));
+    }
+
+    public function update(Request $request, Reservation $reservation)
+    {
+        $validated = $request->validate([
+            'name'       => 'required|string|max:100',
+            'kana'       => 'nullable|string|max:100',
+            'email'      => 'required|email:rfc',
+            'phone'      => ['nullable', 'string', 'max:20'],
+            'companions' => 'nullable|integer|min:0|max:99',
+            'memo'       => 'nullable|string|max:1000',
+        ]);
+
+        $reservation->update($validated);
+
+        return redirect()->route('admin.reservations.show', $reservation)
+            ->with('success', '予約情報を更新しました。');
+    }
+
+    public function resendEmail(Reservation $reservation)
+    {
+        abort_if($reservation->status !== 'reserved', 422, 'キャンセル済みの予約にはメールを送れません。');
+
+        $tenant = auth()->user()->tenant;
+        $mailService = new MailService();
+        $mailService->sendReservationConfirm($reservation->load(['event', 'slot']), $tenant);
+
+        return back()->with('success', '確認メールを再送しました。');
     }
 }

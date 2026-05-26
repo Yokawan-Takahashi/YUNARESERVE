@@ -11,7 +11,7 @@ class EventController extends Controller
 {
     public function index()
     {
-        $events = Event::with('category')->latest()->paginate(20);
+        $events = Event::with('category')->withCount('slots')->latest()->paginate(20);
         return view('admin.events.index', compact('events'));
     }
 
@@ -40,8 +40,7 @@ class EventController extends Controller
 
     public function show(Event $event)
     {
-        $event->load('slots');
-        return view('admin.events.show', compact('event'));
+        return redirect()->route('admin.events.edit', $event);
     }
 
     public function edit(Event $event)

@@ -1,3 +1,44 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    body {
+        font-family: 'Hiragino Kana Gothic Pro', 'ヒラギノ角ゴ Pro W3',
+                     'Yu Gothic UI', 'YuGothic', 'Meiryo UI', 'メイリオ',
+                     'Segoe UI', system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+    }
+    :root {
+        --brand-color: #4f46e5;
+    }
+}
+
+@layer components {
+    /* ブランドカラーボタン（テナント配色対応） */
+    .btn-brand {
+        @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium text-sm text-white transition-opacity;
+        background-color: var(--brand-color);
+    }
+    .btn-brand:hover { opacity: 0.88; }
+
+    /* フォーム入力 */
+    .field {
+        @apply w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-indigo-400 focus:ring-indigo-200;
+    }
+    .field-error {
+        @apply border-rose-400 focus:border-rose-400 focus:ring-rose-200;
+    }
+
+    /* カード */
+    .card {
+        @apply bg-white rounded-xl shadow-sm border border-slate-100;
+    }
+
+    /* バッジ */
+    .badge-reserved  { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800; }
+    .badge-cancelled { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500; }
+    .badge-draft     { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700; }
+    .badge-published { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800; }
+    .badge-full      { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-700; }
+}

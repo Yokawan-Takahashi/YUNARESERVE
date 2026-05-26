@@ -28,6 +28,8 @@ class BookingController extends Controller
         abort_if(!$event->isPublished(), 404);
         abort_if($slot->event_id !== $event->id, 404);
 
+        $tenant = app('tenant') ?? $event->tenant;
+
         $baseRules = [
             'name'       => 'required|string|max:100',
             'kana'       => 'nullable|string|max:100|regex:/^[ぁ-ん　 ー]+$/u',
@@ -36,6 +38,10 @@ class BookingController extends Controller
             'phone'      => ['nullable', 'string', 'max:20', 'regex:/^[0-9\-\+\(\) ]+$/'],
             'companions' => 'nullable|integer|min:0|max:99',
         ];
+
+        if ($tenant?->privacy_policy_url) {
+            $baseRules['privacy_consent'] = 'required|accepted';
+        }
 
         // カスタムフォーム項目のバリデーションルールを動的に追加
         $fields = $event->formFields()->get();
@@ -112,7 +118,6 @@ class BookingController extends Controller
             return $reservation;
         });
 
-        $tenant = app('tenant') ?? $event->tenant;
         $mailService = new MailService();
         $mailService->sendReservationConfirm($reservation, $tenant);
         $mailService->sendAdminNotify($reservation, $tenant);
