@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Listeners\HandleStripeWebhook;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Cashier\Events\WebhookReceived;
 use Tests\TestCase;
 
 class BillingTest extends TestCase
@@ -63,7 +65,7 @@ class BillingTest extends TestCase
     /** STRIPE_PRICE_ID未設定でチェックアウトするとエラー */
     public function test_checkout_returns_error_when_no_price_id(): void
     {
-        config(['cashier.price_id' => null]);
+        config(['plans.standard.price_id' => null]);
 
         $response = $this->actingAs($this->admin)
             ->post('/admin/billing/checkout');
@@ -84,5 +86,51 @@ class BillingTest extends TestCase
     {
         $response = $this->post('/stripe/webhook');
         $this->assertNotEquals(404, $response->getStatusCode());
+    }
+
+    /** customer.subscription.deleted でテナントがsuspendedになる */
+    public function test_subscription_deleted_suspends_tenant(): void
+    {
+        $this->tenant->update(['stripe_id' => 'cus_test_billing']);
+
+        $listener = new HandleStripeWebhook();
+        $listener->handle(new WebhookReceived([
+            'type' => 'customer.subscription.deleted',
+            'data' => ['object' => ['customer' => 'cus_test_billing']],
+        ]));
+
+        $this->tenant->refresh();
+        $this->assertEquals('suspended', $this->tenant->status);
+        $this->assertNull($this->tenant->plan);
+    }
+
+    /** invoice.payment_failed が3回以上でsuspended */
+    public function test_payment_failed_three_times_suspends_tenant(): void
+    {
+        $this->tenant->update(['stripe_id' => 'cus_test_billing2', 'status' => 'active']);
+
+        $listener = new HandleStripeWebhook();
+        $listener->handle(new WebhookReceived([
+            'type' => 'invoice.payment_failed',
+            'data' => ['object' => ['customer' => 'cus_test_billing2', 'attempt_count' => 3]],
+        ]));
+
+        $this->tenant->refresh();
+        $this->assertEquals('suspended', $this->tenant->status);
+    }
+
+    /** invoice.paid でsuspendedからactiveに復活する */
+    public function test_invoice_paid_restores_suspended_tenant(): void
+    {
+        $this->tenant->update(['stripe_id' => 'cus_test_billing3', 'status' => 'suspended']);
+
+        $listener = new HandleStripeWebhook();
+        $listener->handle(new WebhookReceived([
+            'type' => 'invoice.paid',
+            'data' => ['object' => ['customer' => 'cus_test_billing3']],
+        ]));
+
+        $this->tenant->refresh();
+        $this->assertEquals('active', $this->tenant->status);
     }
 }

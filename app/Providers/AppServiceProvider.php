@@ -2,10 +2,13 @@
 
 namespace App\Providers;
 
+use App\Listeners\HandleStripeWebhook;
 use App\Models\Tenant;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
+use Laravel\Cashier\Events\WebhookReceived;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,5 +29,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Cashier::useCustomerModel(Tenant::class);
         Paginator::useTailwind();
+        Event::listen(WebhookReceived::class, HandleStripeWebhook::class);
     }
 }

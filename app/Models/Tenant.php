@@ -20,8 +20,12 @@ class Tenant extends Model
         'privacy_policy_url',
         'status',
         'features',
+        'stripe_id',
         'stripe_customer_id',
         'stripe_subscription_id',
+        'pm_type',
+        'pm_last_four',
+        'trial_ends_at',
         'plan',
     ];
 

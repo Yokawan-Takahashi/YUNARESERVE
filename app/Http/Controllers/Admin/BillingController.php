@@ -42,7 +42,7 @@ class BillingController extends Controller
     public function checkout(Request $request)
     {
         $tenant = auth()->user()->tenant;
-        $priceId = config('cashier.price_id');
+        $priceId = config('plans.standard.price_id');
 
         if (! $priceId) {
             return back()->with('error', 'プランが設定されていません。');
