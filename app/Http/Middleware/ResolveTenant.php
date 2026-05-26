@@ -11,8 +11,8 @@ class ResolveTenant
 {
     public function handle(Request $request, Closure $next): Response
     {
-        // テスト・ローカル開発で既にテナントがセットされていれば解決済みとみなす
-        if (app()->bound('tenant')) {
+        // テスト等で既にテナントインスタンスがセットされていれば解決済みとみなす
+        if (app('tenant') !== null) {
             return $next($request);
         }
 
