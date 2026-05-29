@@ -161,7 +161,13 @@
             @if($tenant->stripe_id)
             <div class="mt-4 pt-4 border-t border-slate-100">
                 <p class="text-xs text-slate-400 mb-1">Stripe顧客ID</p>
-                <p class="font-mono text-xs text-slate-600 break-all">{{ $tenant->stripe_id }}</p>
+                <p class="font-mono text-xs text-slate-600 break-all mb-2">{{ $tenant->stripe_id }}</p>
+                <a href="https://dashboard.stripe.com/customers/{{ $tenant->stripe_id }}"
+                   target="_blank"
+                   class="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    Stripeで課金管理 →
+                </a>
             </div>
             @endif
         </div>

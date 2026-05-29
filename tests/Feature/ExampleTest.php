@@ -10,20 +10,26 @@ class ExampleTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** テナントなしでルートにアクセスすると404 */
-    public function test_root_without_tenant_returns_404(): void
+    /** LP（トップページ）は常に200 */
+    public function test_lp_returns_200(): void
     {
-        $response = $this->get('/');
-        $response->assertStatus(404);
-    }
-
-    /** テナントコンテキストがあればルートが200を返す */
-    public function test_the_application_returns_a_successful_response(): void
-    {
-        $tenant = Tenant::create(['slug' => 'test', 'company_name' => 'テスト', 'status' => 'active']);
-        app()->instance('tenant', $tenant);
-
         $response = $this->get('/');
         $response->assertStatus(200);
+    }
+
+    /** 有効なスラッグの公開トップは200 */
+    public function test_tenant_public_index_returns_200(): void
+    {
+        Tenant::create(['slug' => 'test', 'company_name' => 'テスト', 'status' => 'active']);
+
+        $response = $this->get('/test');
+        $response->assertStatus(200);
+    }
+
+    /** 存在しないスラッグは404 */
+    public function test_unknown_slug_returns_404(): void
+    {
+        $response = $this->get('/nonexistent-tenant-slug');
+        $response->assertStatus(404);
     }
 }

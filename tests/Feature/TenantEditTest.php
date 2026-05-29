@@ -32,7 +32,7 @@ class TenantEditTest extends TestCase
     public function test_superadmin_can_access_tenant_edit(): void
     {
         $response = $this->actingAs($this->superadmin)
-            ->get("/superadmin/tenants/{$this->tenant->id}/edit");
+            ->get("/superadmin/tenants/{$this->tenant->slug}/edit");
         $response->assertStatus(200);
         $response->assertSee('編集テスト社');
     }
@@ -40,7 +40,7 @@ class TenantEditTest extends TestCase
     public function test_superadmin_can_update_tenant(): void
     {
         $this->actingAs($this->superadmin)
-            ->put("/superadmin/tenants/{$this->tenant->id}", [
+            ->put("/superadmin/tenants/{$this->tenant->slug}", [
                 'company_name' => '更新後会社名',
                 'status'       => 'active',
                 'notify_email' => 'notify@edit-tenant.com',
@@ -55,7 +55,7 @@ class TenantEditTest extends TestCase
     public function test_tenant_edit_shows_slug_readonly(): void
     {
         $response = $this->actingAs($this->superadmin)
-            ->get("/superadmin/tenants/{$this->tenant->id}/edit");
+            ->get("/superadmin/tenants/{$this->tenant->slug}/edit");
         $response->assertSee('edit-tenant');
     }
 
@@ -68,7 +68,7 @@ class TenantEditTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)
-            ->get("/superadmin/tenants/{$this->tenant->id}/edit");
+            ->get("/superadmin/tenants/{$this->tenant->slug}/edit");
         $response->assertStatus(403);
     }
 }

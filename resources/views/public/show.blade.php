@@ -1,10 +1,10 @@
-@extends('public.layouts.app')
+﻿@extends('public.layouts.app')
 @section('title', $event->title)
 @section('content')
 @php $brandColor = $tenant?->color ?? '#4f46e5'; @endphp
 
 <div class="max-w-3xl mx-auto px-5 py-8">
-    <a href="{{ route('public.index') }}" class="inline-flex items-center text-sm text-slate-500 hover:text-slate-700 mb-6">
+    <a href="{{ route('public.index', $tenant) }}" class="inline-flex items-center text-sm text-slate-500 hover:text-slate-700 mb-6">
         <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
         イベント一覧へ
     </a>
@@ -85,7 +85,7 @@
             </p>
         </div>
         @if($slot->isAccepting())
-        <a href="{{ route('public.book', [$event, $slot]) }}"
+        <a href="{{ route('public.book', [$tenant, $event, $slot]) }}"
            class="px-5 py-2 rounded-xl text-sm font-semibold text-white transition brand-hover shrink-0"
            style="background-color: {{ $brandColor }};">
             予約する
@@ -103,3 +103,5 @@
     @endforelse
 </div>
 @endsection
+
+

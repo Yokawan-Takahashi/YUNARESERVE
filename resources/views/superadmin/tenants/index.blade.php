@@ -42,8 +42,10 @@
                 <th class="px-5 py-3 text-left text-xs font-medium text-slate-500">スラッグ</th>
                 <th class="px-5 py-3 text-left text-xs font-medium text-slate-500">業種</th>
                 <th class="px-5 py-3 text-left text-xs font-medium text-slate-500">ユーザー数</th>
+                <th class="px-5 py-3 text-left text-xs font-medium text-slate-500">課金</th>
                 <th class="px-5 py-3 text-left text-xs font-medium text-slate-500">ステータス</th>
                 <th class="px-5 py-3 text-left text-xs font-medium text-slate-500">作成日</th>
+                <th class="px-5 py-3 text-left text-xs font-medium text-slate-500">公開URL</th>
                 <th class="px-5 py-3"></th>
             </tr>
         </thead>
@@ -55,6 +57,16 @@
                 <td class="px-5 py-3.5 text-slate-500">{{ $tenant->industry ?? '―' }}</td>
                 <td class="px-5 py-3.5 text-slate-600">{{ $tenant->users->count() }} 名</td>
                 <td class="px-5 py-3.5">
+                    @php $sub = $tenant->subscriptions->first(); @endphp
+                    @if($sub && $sub->active())
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">課金中</span>
+                    @elseif($sub && $sub->canceled())
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">解約済</span>
+                    @else
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500">未契約</span>
+                    @endif
+                </td>
+                <td class="px-5 py-3.5">
                     @if($tenant->status === 'active')
                         <span class="badge-published">有効</span>
                     @else
@@ -62,6 +74,12 @@
                     @endif
                 </td>
                 <td class="px-5 py-3.5 text-slate-400 text-xs">{{ $tenant->created_at->format('Y/m/d') }}</td>
+                <td class="px-5 py-3.5">
+                    <a href="{{ url($tenant->slug) }}" target="_blank"
+                       class="text-xs text-slate-400 hover:text-indigo-600 font-mono transition">
+                        /{{ $tenant->slug }}
+                    </a>
+                </td>
                 <td class="px-5 py-3.5">
                     <div class="flex items-center gap-3">
                         <a href="{{ route('superadmin.tenants.show', $tenant) }}" class="text-xs text-indigo-600 hover:text-indigo-700 font-medium">詳細</a>

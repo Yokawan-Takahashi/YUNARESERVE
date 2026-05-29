@@ -46,6 +46,12 @@
                 <td class="px-5 py-4 text-slate-600">{{ $event->slots_count ?? '―' }} 枠</td>
                 <td class="px-5 py-4 text-right">
                     <div class="flex items-center justify-end gap-3">
+                        @if($event->status === 'published')
+                        <a href="{{ url(auth()->user()->tenant->slug . '/events/' . $event->id) }}" target="_blank"
+                           class="text-xs text-slate-500 hover:text-indigo-600 font-medium" title="公開ページを確認">
+                            公開URL
+                        </a>
+                        @endif
                         @if($level >= 2)
                         <a href="{{ route('admin.events.edit', $event) }}" class="text-xs text-indigo-600 hover:text-indigo-700 font-medium">編集</a>
                         @endif

@@ -1,10 +1,10 @@
-@extends('public.layouts.app')
+﻿@extends('public.layouts.app')
 @section('title', '予約フォーム — ' . $event->title)
 @section('content')
 @php $brandColor = $tenant?->color ?? '#4f46e5'; @endphp
 
 <div class="max-w-xl mx-auto px-5 py-8">
-    <a href="{{ route('public.events.show', $event) }}" class="inline-flex items-center text-sm text-slate-500 hover:text-slate-700 mb-6">
+    <a href="{{ route('public.events.show', [$tenant, $event]) }}" class="inline-flex items-center text-sm text-slate-500 hover:text-slate-700 mb-6">
         <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
         イベント詳細へ
     </a>
@@ -29,7 +29,7 @@
     @endif
 
     {{-- フォーム --}}
-    <form method="POST" action="{{ route('public.book.store', [$event, $slot]) }}"
+    <form method="POST" action="{{ route('public.book.store', [$tenant, $event, $slot]) }}"
           class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         @csrf
         <div class="p-6 space-y-5">
@@ -146,3 +146,5 @@
     </form>
 </div>
 @endsection
+
+

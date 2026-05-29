@@ -44,6 +44,25 @@
     </div>
 </div>
 
+{{-- 公開ページへのリンク --}}
+@php $tenant = auth()->user()->tenant; @endphp
+@if($tenant)
+<div class="mb-6 flex items-center justify-between bg-indigo-50 border border-indigo-100 rounded-xl px-5 py-3.5">
+    <div class="flex items-center gap-3">
+        <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+        <div>
+            <p class="text-sm font-medium text-indigo-800">お客様向け予約ページ</p>
+            <p class="text-xs text-indigo-500 font-mono">{{ url($tenant->slug) }}</p>
+        </div>
+    </div>
+    <a href="{{ url($tenant->slug) }}" target="_blank"
+       class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-lg hover:bg-indigo-700 transition">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        公開ページを確認
+    </a>
+</div>
+@endif
+
 {{-- 直近の予約 --}}
 <div class="card overflow-hidden">
     <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">

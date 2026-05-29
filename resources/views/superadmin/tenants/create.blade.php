@@ -11,16 +11,22 @@
 
             <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-3">テナント情報</p>
 
+            @if(request('company_name'))
+            <div class="bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-2.5 text-xs text-indigo-700">
+                お問い合わせ情報から自動入力しました。スラッグと初期パスワードを設定してください。
+            </div>
+            @endif
+
             <div>
                 <label class="block text-xs font-medium text-slate-600 mb-1.5">会社名・店舗名 <span class="text-rose-500">*</span></label>
-                <input type="text" name="company_name" value="{{ old('company_name') }}" class="field" required placeholder="株式会社〇〇">
+                <input type="text" name="company_name" value="{{ old('company_name', request('company_name')) }}" class="field" required placeholder="株式会社〇〇">
                 @error('company_name')<p class="text-rose-500 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
 
             <div>
                 <label class="block text-xs font-medium text-slate-600 mb-1.5">スラッグ <span class="text-rose-500">*</span></label>
                 <input type="text" name="slug" value="{{ old('slug') }}" class="field font-mono" required placeholder="example-company">
-                <p class="text-xs text-slate-400 mt-1">英数字とハイフンのみ。URLに使用されます（例: example-company.yunari-reserve.jp）</p>
+                <p class="text-xs text-slate-400 mt-1">英数字とハイフンのみ。URLに使用されます（例: reserve.yoka-wan.co.jp/スラッグ名）</p>
                 @error('slug')<p class="text-rose-500 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
 
@@ -28,7 +34,7 @@
                 <label class="block text-xs font-medium text-slate-600 mb-1.5">業種</label>
                 <select name="industry" class="field">
                     @foreach($industries as $industry)
-                    <option value="{{ $industry }}" {{ old('industry') === $industry ? 'selected' : '' }}>{{ $industry }}</option>
+                    <option value="{{ $industry }}" {{ old('industry', request('industry')) === $industry ? 'selected' : '' }}>{{ $industry }}</option>
                     @endforeach
                 </select>
                 @error('industry')<p class="text-rose-500 text-xs mt-1">{{ $message }}</p>@enderror
@@ -38,20 +44,20 @@
 
             <div>
                 <label class="block text-xs font-medium text-slate-600 mb-1.5">氏名 <span class="text-rose-500">*</span></label>
-                <input type="text" name="owner_name" value="{{ old('owner_name') }}" class="field" required placeholder="山田 太郎">
+                <input type="text" name="owner_name" value="{{ old('owner_name', request('owner_name')) }}" class="field" required placeholder="山田 太郎">
                 @error('owner_name')<p class="text-rose-500 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
 
             <div>
                 <label class="block text-xs font-medium text-slate-600 mb-1.5">メールアドレス <span class="text-rose-500">*</span></label>
-                <input type="email" name="owner_email" value="{{ old('owner_email') }}" class="field" required placeholder="owner@example.com">
+                <input type="email" name="owner_email" value="{{ old('owner_email', request('owner_email')) }}" class="field" required placeholder="owner@example.com">
                 @error('owner_email')<p class="text-rose-500 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
 
             <div>
                 <label class="block text-xs font-medium text-slate-600 mb-1.5">初期パスワード <span class="text-rose-500">*</span></label>
                 <input type="text" name="owner_password" value="{{ old('owner_password') }}" class="field font-mono" required minlength="8" placeholder="8文字以上">
-                <p class="text-xs text-slate-400 mt-1">オーナーに別途通知してください</p>
+                <p class="text-xs text-slate-400 mt-1">作成後、オーナーへ招待メールが自動送信されます</p>
                 @error('owner_password')<p class="text-rose-500 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
 

@@ -3,35 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reservation;
+use App\Models\Tenant;
 use App\Services\MailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class CancelController extends Controller
 {
-    private function checkCancelDeadline(Reservation $reservation, $tenant): bool
+    private function checkCancelDeadline(Reservation $reservation, Tenant $tenant): bool
     {
-        if (!$tenant || $tenant->cancel_deadline_days === null) {
+        if ($tenant->cancel_deadline_days === null) {
             return true;
         }
         $deadline = $reservation->slot->date->subDays($tenant->cancel_deadline_days)->endOfDay();
         return now()->lte($deadline);
     }
 
-    public function show(string $token)
+    public function show(Tenant $tenant, string $token)
     {
         $reservation = Reservation::withoutGlobalScopes()
             ->where('cancel_token', $token)
             ->with(['event', 'slot'])
             ->firstOrFail();
 
-        $tenant = app('tenant') ?? $reservation->tenant;
         $canCancel = $this->checkCancelDeadline($reservation, $tenant);
 
         return view('public.cancel', compact('reservation', 'tenant', 'canCancel'));
     }
 
-    public function destroy(string $token)
+    public function destroy(Tenant $tenant, string $token)
     {
         $reservation = Reservation::withoutGlobalScopes()
             ->where('cancel_token', $token)
@@ -39,13 +39,12 @@ class CancelController extends Controller
             ->firstOrFail();
 
         if ($reservation->isCancelled()) {
-            return redirect()->route('public.cancel', $token)
+            return redirect()->route('public.cancel', [$tenant->slug, $token])
                 ->withErrors(['cancel' => 'この予約はすでにキャンセル済みです。']);
         }
 
-        $tenant = app('tenant') ?? $reservation->tenant;
         if (!$this->checkCancelDeadline($reservation, $tenant)) {
-            return redirect()->route('public.cancel', $token)
+            return redirect()->route('public.cancel', [$tenant->slug, $token])
                 ->withErrors(['cancel' => 'キャンセル受付期限を過ぎています。']);
         }
 
@@ -55,7 +54,6 @@ class CancelController extends Controller
             $slot = $reservation->slot;
             $slot->decrement('reserved_count');
 
-            // 満席だったスロットを受付可能に戻す
             if ($slot->fresh()->status === 'full') {
                 $slot->update(['status' => 'open']);
             }
@@ -64,17 +62,15 @@ class CancelController extends Controller
         $mailService = new MailService();
         $mailService->sendCancelConfirm($reservation, $tenant);
 
-        return redirect()->route('public.cancel.done', $token);
+        return redirect()->route('public.cancel.done', [$tenant->slug, $token]);
     }
 
-    public function done(string $token)
+    public function done(Tenant $tenant, string $token)
     {
         $reservation = Reservation::withoutGlobalScopes()
             ->where('cancel_token', $token)
             ->with(['event', 'slot'])
             ->firstOrFail();
-
-        $tenant = app('tenant') ?? $reservation->tenant;
 
         return view('public.cancel-done', compact('reservation', 'tenant'));
     }

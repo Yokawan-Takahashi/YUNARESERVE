@@ -1,4 +1,4 @@
-@extends('public.layouts.app')
+﻿@extends('public.layouts.app')
 @section('title', '予約完了')
 @section('content')
 @php $brandColor = $tenant?->color ?? '#4f46e5'; @endphp
@@ -48,12 +48,12 @@
             </p>
 
             <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                <a href="{{ route('public.index') }}"
+                <a href="{{ route('public.index', $tenant) }}"
                    class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium text-white transition brand-hover"
                    style="background-color: {{ $brandColor }};">
                     イベント一覧へ戻る
                 </a>
-                <a href="{{ route('public.lookup') }}"
+                <a href="{{ route('public.lookup', $tenant) }}"
                    class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
                     予約を確認・照会する
                 </a>
@@ -62,3 +62,5 @@
     </div>
 </div>
 @endsection
+
+

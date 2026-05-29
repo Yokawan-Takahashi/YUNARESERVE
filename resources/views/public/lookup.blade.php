@@ -1,4 +1,4 @@
-@extends('public.layouts.app')
+﻿@extends('public.layouts.app')
 @section('title', '予約照会')
 @section('content')
 @php $brandColor = $tenant?->color ?? '#4f46e5'; @endphp
@@ -19,7 +19,7 @@
             </div>
             @enderror
 
-            <form method="POST" action="{{ route('public.lookup.search') }}" class="space-y-4">
+            <form method="POST" action="{{ route('public.lookup.search', $tenant) }}" class="space-y-4">
                 @csrf
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1.5">予約番号 <span class="text-rose-500">*</span></label>
@@ -95,7 +95,7 @@
             @if(! $reservation->isCancelled())
             <div class="pt-2">
                 <p class="text-xs text-slate-400 mb-3">キャンセルをご希望の場合は下記よりお手続きください。</p>
-                <a href="{{ route('public.cancel', $reservation->cancel_token) }}"
+                <a href="{{ route('public.cancel', [$tenant, $reservation->cancel_token]) }}"
                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     この予約をキャンセルする
@@ -107,7 +107,9 @@
     @endisset
 
     <div class="text-center mt-6">
-        <a href="{{ route('public.index') }}" class="text-sm brand-text hover:opacity-75 font-medium">← イベント一覧へ</a>
+        <a href="{{ route('public.index', $tenant) }}" class="text-sm brand-text hover:opacity-75 font-medium">← イベント一覧へ</a>
     </div>
 </div>
 @endsection
+
+

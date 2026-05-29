@@ -41,7 +41,7 @@ class MailTest extends TestCase
 
     private function postBooking(array $override = []): void
     {
-        $this->post("/events/{$this->event->id}/book/{$this->slot->id}", array_merge([
+        $this->post("/{$this->tenant->slug}/events/{$this->event->id}/book/{$this->slot->id}", array_merge([
             'name'          => '鈴木花子',
             'kana'          => 'すずきはなこ',
             'email'         => 'hanako@example.com',
@@ -132,7 +132,7 @@ class MailTest extends TestCase
         Mail::assertSent(ReservationConfirmMail::class, function ($mail) {
             $reservation = $mail->reservation;
             return str_contains(
-                route('public.cancel', $reservation->cancel_token),
+                route('public.cancel', ['slug' => $this->tenant->slug, 'token' => $reservation->cancel_token]),
                 '/cancel/'
             );
         });

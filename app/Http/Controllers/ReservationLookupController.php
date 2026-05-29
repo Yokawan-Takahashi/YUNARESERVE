@@ -3,20 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reservation;
+use App\Models\Tenant;
 use Illuminate\Http\Request;
 
 class ReservationLookupController extends Controller
 {
-    public function show()
+    public function show(Tenant $tenant)
     {
-        $tenant = app('tenant');
         return view('public.lookup', compact('tenant'));
     }
 
-    public function search(Request $request)
+    public function search(Request $request, Tenant $tenant)
     {
-        $tenant = app('tenant');
-
         $validated = $request->validate([
             'code'  => 'required|string|max:20',
             'email' => 'required|email',

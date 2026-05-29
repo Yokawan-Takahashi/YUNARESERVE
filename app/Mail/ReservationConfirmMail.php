@@ -33,7 +33,7 @@ class ReservationConfirmMail extends Mailable
             with: [
                 'reservation' => $this->reservation,
                 'tenant'      => $this->tenant,
-                'cancelUrl'   => route('public.cancel', $this->reservation->cancel_token),
+                'cancelUrl'   => route('public.cancel', [$this->tenant->slug, $this->reservation->cancel_token]),
             ],
         );
     }

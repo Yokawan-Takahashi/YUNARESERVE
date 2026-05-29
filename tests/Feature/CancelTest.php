@@ -53,10 +53,17 @@ class CancelTest extends TestCase
         ]);
     }
 
+    private function cancelUrl(string $suffix = ''): string
+    {
+        $slug = $this->tenant->slug;
+        $token = $this->reservation->cancel_token;
+        return "/{$slug}/cancel/{$token}{$suffix}";
+    }
+
     /** キャンセル確認画面が表示される */
     public function test_cancel_confirm_page_is_shown(): void
     {
-        $response = $this->get('/cancel/' . $this->reservation->cancel_token);
+        $response = $this->get($this->cancelUrl());
 
         $response->assertStatus(200);
         $response->assertSee('予約キャンセル');
@@ -67,7 +74,8 @@ class CancelTest extends TestCase
     /** 不正なトークンは404 */
     public function test_invalid_token_returns_404(): void
     {
-        $response = $this->get('/cancel/invalid-token-does-not-exist');
+        $slug = $this->tenant->slug;
+        $response = $this->get("/{$slug}/cancel/invalid-token-does-not-exist");
         $response->assertStatus(404);
     }
 
@@ -76,7 +84,7 @@ class CancelTest extends TestCase
     {
         Mail::fake();
 
-        $this->delete('/cancel/' . $this->reservation->cancel_token);
+        $this->delete($this->cancelUrl());
 
         $this->assertEquals('cancelled', $this->reservation->fresh()->status);
     }
@@ -86,7 +94,7 @@ class CancelTest extends TestCase
     {
         Mail::fake();
 
-        $this->delete('/cancel/' . $this->reservation->cancel_token);
+        $this->delete($this->cancelUrl());
 
         $this->assertEquals(0, $this->slot->fresh()->reserved_count);
     }
@@ -98,7 +106,7 @@ class CancelTest extends TestCase
 
         $this->slot->update(['status' => 'full', 'reserved_count' => 1]);
 
-        $this->delete('/cancel/' . $this->reservation->cancel_token);
+        $this->delete($this->cancelUrl());
 
         $this->assertEquals('open', $this->slot->fresh()->status);
     }
@@ -108,9 +116,9 @@ class CancelTest extends TestCase
     {
         Mail::fake();
 
-        $response = $this->delete('/cancel/' . $this->reservation->cancel_token);
+        $response = $this->delete($this->cancelUrl());
 
-        $response->assertRedirect('/cancel/' . $this->reservation->cancel_token . '/done');
+        $response->assertRedirect($this->cancelUrl('/done'));
     }
 
     /** キャンセル完了画面が表示される */
@@ -120,7 +128,7 @@ class CancelTest extends TestCase
 
         $this->reservation->update(['status' => 'cancelled']);
 
-        $response = $this->get('/cancel/' . $this->reservation->cancel_token . '/done');
+        $response = $this->get($this->cancelUrl('/done'));
 
         $response->assertStatus(200);
         $response->assertSee('キャンセルが完了しました');
@@ -132,7 +140,7 @@ class CancelTest extends TestCase
     {
         Mail::fake();
 
-        $this->delete('/cancel/' . $this->reservation->cancel_token);
+        $this->delete($this->cancelUrl());
 
         Mail::assertSent(ReservationCancelMail::class, function ($mail) {
             return $mail->hasTo('test@example.com');
@@ -144,7 +152,7 @@ class CancelTest extends TestCase
     {
         Mail::fake();
 
-        $this->delete('/cancel/' . $this->reservation->cancel_token);
+        $this->delete($this->cancelUrl());
 
         $this->assertDatabaseHas('mail_logs', [
             'tenant_id' => $this->tenant->id,
@@ -160,7 +168,7 @@ class CancelTest extends TestCase
 
         $this->reservation->update(['status' => 'cancelled']);
 
-        $response = $this->delete('/cancel/' . $this->reservation->cancel_token);
+        $response = $this->delete($this->cancelUrl());
 
         $response->assertRedirect();
         $response->assertSessionHasErrors('cancel');
@@ -172,7 +180,7 @@ class CancelTest extends TestCase
     {
         $this->reservation->update(['status' => 'cancelled']);
 
-        $response = $this->get('/cancel/' . $this->reservation->cancel_token);
+        $response = $this->get($this->cancelUrl());
 
         $response->assertStatus(200);
         $response->assertSee('すでにキャンセル済み');

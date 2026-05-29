@@ -6,6 +6,7 @@ use App\Listeners\HandleStripeWebhook;
 use App\Models\Tenant;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Events\WebhookReceived;
@@ -30,5 +31,11 @@ class AppServiceProvider extends ServiceProvider
         Cashier::useCustomerModel(Tenant::class);
         Paginator::useTailwind();
         Event::listen(WebhookReceived::class, HandleStripeWebhook::class);
+
+        // {slug} route パラメーターを Tenant モデルに明示バインド
+        // これにより SubstituteBindings がコントローラーの引数を正しく解決する
+        Route::bind('slug', fn ($value) =>
+            Tenant::where('slug', $value)->where('status', 'active')->firstOrFail()
+        );
     }
 }

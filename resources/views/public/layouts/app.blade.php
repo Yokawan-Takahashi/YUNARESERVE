@@ -19,7 +19,7 @@
     {{-- ヘッダー --}}
     <header class="bg-white border-b border-slate-100 sticky top-0 z-20">
         <div class="max-w-4xl mx-auto px-5 h-16 flex items-center justify-between">
-            <a href="{{ route('public.index') }}" class="flex items-center gap-3">
+            <a href="{{ route('public.index', $tenant) }}" class="flex items-center gap-3">
                 @if($tenant?->logo_path)
                     <img src="{{ asset('storage/' . $tenant->logo_path) }}" alt="{{ $tenant->company_name }}" class="h-8 object-contain">
                 @else
@@ -31,10 +31,10 @@
                 @endif
             </a>
             <nav class="flex items-center gap-1">
-                <a href="{{ route('public.index') }}" class="px-3 py-1.5 text-sm text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition">
+                <a href="{{ route('public.index', $tenant) }}" class="px-3 py-1.5 text-sm text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition">
                     イベント一覧
                 </a>
-                <a href="{{ route('public.lookup') }}" class="px-3 py-1.5 text-sm text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition">
+                <a href="{{ route('public.lookup', $tenant) }}" class="px-3 py-1.5 text-sm text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition">
                     予約照会
                 </a>
             </nav>
@@ -51,7 +51,7 @@
         <div class="max-w-4xl mx-auto px-5 py-6 text-center text-xs text-slate-400">
             © {{ date('Y') }} {{ $tenant?->company_name ?? config('app.name') }}
             @if($tenant?->company_name)
-             — Powered by YUNARI RESERVE
+             — Powered by <a href="{{ route('lp') }}" class="hover:text-slate-600 transition">YUNARI RESERVE</a>
             @endif
         </div>
     </footer>

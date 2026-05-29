@@ -1,4 +1,4 @@
-@extends('public.layouts.app')
+﻿@extends('public.layouts.app')
 @section('title', '予約キャンセル')
 @section('content')
 @php $brandColor = $tenant?->color ?? '#4f46e5'; @endphp
@@ -19,7 +19,7 @@
             @if($reservation->isCancelled())
             <div class="py-6 text-center">
                 <p class="text-slate-500 mb-4">この予約はすでにキャンセル済みです。</p>
-                <a href="{{ route('public.index') }}" class="text-sm font-medium brand-text">← イベント一覧へ</a>
+                <a href="{{ route('public.index', $tenant) }}" class="text-sm font-medium brand-text">← イベント一覧へ</a>
             </div>
             @elseif(!$canCancel)
             <div class="py-6 text-center">
@@ -31,7 +31,7 @@
                     キャンセルの受付はイベント当日の {{ $tenant->cancel_deadline_days }} 日前までです。<br>
                     お急ぎの場合はお問い合わせください。
                 </p>
-                <a href="{{ route('public.index') }}" class="text-sm font-medium brand-text">← イベント一覧へ</a>
+                <a href="{{ route('public.index', $tenant) }}" class="text-sm font-medium brand-text">← イベント一覧へ</a>
             </div>
             @else
             <p class="text-sm text-slate-500 mb-6">以下の予約をキャンセルしてよろしいですか？キャンセル後は元に戻せません。</p>
@@ -60,14 +60,14 @@
             </div>
 
             <div class="flex gap-3">
-                <form method="POST" action="{{ route('public.cancel.destroy', $reservation->cancel_token) }}" class="flex-1">
+                <form method="POST" action="{{ route('public.cancel.destroy', [$tenant, $reservation->cancel_token]) }}" class="flex-1">
                     @csrf @method('DELETE')
                     <button type="submit" onclick="return confirm('本当にキャンセルしますか？')"
                         class="w-full py-3 rounded-xl text-sm font-semibold text-white bg-rose-500 hover:bg-rose-600 transition">
                         キャンセルを確定する
                     </button>
                 </form>
-                <a href="{{ route('public.index') }}"
+                <a href="{{ route('public.index', $tenant) }}"
                    class="flex-1 flex items-center justify-center py-3 rounded-xl text-sm font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
                     戻る
                 </a>
@@ -77,3 +77,5 @@
     </div>
 </div>
 @endsection
+
+

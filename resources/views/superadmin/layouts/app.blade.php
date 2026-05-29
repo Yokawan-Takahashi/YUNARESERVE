@@ -49,6 +49,14 @@
                 テナント新規作成
             </a>
 
+            <p class="px-3 pt-4 pb-2 text-xs font-semibold text-indigo-400 uppercase tracking-wider">申込管理</p>
+
+            <a href="{{ route('superadmin.inquiries.index') }}"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition {{ str_starts_with($route, 'superadmin.inquiries') ? 'bg-white/10 text-white' : 'text-indigo-200 hover:bg-white/5 hover:text-white' }}">
+                <svg class="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                お問い合わせ
+            </a>
+
         </nav>
 
         {{-- テナント側管理画面へのリンク --}}

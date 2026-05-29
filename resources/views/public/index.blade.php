@@ -1,4 +1,4 @@
-@extends('public.layouts.app')
+﻿@extends('public.layouts.app')
 @section('title', '予約受付')
 @section('content')
 @php $brandColor = $tenant?->color ?? '#4f46e5'; @endphp
@@ -16,12 +16,12 @@
     {{-- カテゴリフィルター --}}
     @if($categories->count())
     <div class="flex gap-2 flex-wrap mb-6">
-        <a href="{{ route('public.index') }}"
+        <a href="{{ route('public.index', $tenant) }}"
            class="px-3 py-1.5 rounded-full text-sm font-medium transition {{ !request('category_id') ? 'text-white brand-bg' : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300' }}">
             すべて
         </a>
         @foreach($categories as $cat)
-        <a href="{{ route('public.index', ['category_id' => $cat->id]) }}"
+        <a href="{{ route('public.index', ['slug' => $tenant->slug, 'category_id' => $cat->id]) }}"
            class="px-3 py-1.5 rounded-full text-sm font-medium transition {{ request('category_id') == $cat->id ? 'text-white brand-bg' : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300' }}">
             {{ $cat->icon }} {{ $cat->name }}
         </a>
@@ -69,7 +69,7 @@
                 <p class="text-xs text-slate-400 font-medium mb-2">受付中の日程</p>
                 <div class="flex flex-wrap gap-2">
                     @foreach($openSlots->take(4) as $slot)
-                    <a href="{{ route('public.book', [$event, $slot]) }}"
+                    <a href="{{ route('public.book', [$tenant, $event, $slot]) }}"
                        class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium border-2 transition brand-hover"
                        style="border-color: {{ $brandColor }}; color: {{ $brandColor }};">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -78,7 +78,7 @@
                     </a>
                     @endforeach
                     @if($openSlots->count() > 4)
-                    <a href="{{ route('public.events.show', $event) }}" class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm text-slate-500 border border-slate-200 hover:bg-slate-50">
+                    <a href="{{ route('public.events.show', [$tenant, $event]) }}" class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm text-slate-500 border border-slate-200 hover:bg-slate-50">
                         +{{ $openSlots->count() - 4 }} 件
                     </a>
                     @endif
@@ -91,7 +91,7 @@
             @endif
 
             <div class="mt-3">
-                <a href="{{ route('public.events.show', $event) }}" class="text-sm font-medium brand-text hover:opacity-75">
+                <a href="{{ route('public.events.show', [$tenant, $event]) }}" class="text-sm font-medium brand-text hover:opacity-75">
                     詳細を見る →
                 </a>
             </div>
@@ -106,3 +106,5 @@
     @endforelse
 </div>
 @endsection
+
+

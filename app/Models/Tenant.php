@@ -33,6 +33,11 @@ class Tenant extends Model
         'features' => 'array',
     ];
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function users()
     {
         return $this->hasMany(User::class);

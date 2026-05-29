@@ -16,6 +16,11 @@ class TenantContext
             return $next($request);
         }
 
+        // superadmin はテナント管理画面ではなく運営コンソールへ
+        if ($user->role === 'superadmin') {
+            return redirect()->route('superadmin.dashboard');
+        }
+
         $currentTenant = app()->bound('tenant') ? app('tenant') : null;
 
         if ($currentTenant === null) {

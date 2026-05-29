@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Inquiry;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class SuperAdminController extends Controller
 {
@@ -20,7 +22,7 @@ class SuperAdminController extends Controller
 
     public function index()
     {
-        $tenants = Tenant::withoutGlobalScopes()->with('users')->latest()->paginate(30);
+        $tenants = Tenant::withoutGlobalScopes()->with(['users', 'subscriptions'])->latest()->paginate(30);
         return view('superadmin.tenants.index', compact('tenants'));
     }
 
@@ -41,7 +43,10 @@ class SuperAdminController extends Controller
             'owner_password' => 'required|string|min:8',
         ]);
 
-        DB::transaction(function () use ($validated) {
+        $tenant = null;
+        $owner  = null;
+
+        DB::transaction(function () use ($validated, &$tenant, &$owner) {
             $tenant = Tenant::create([
                 'company_name' => $validated['company_name'],
                 'slug'         => $validated['slug'],
@@ -50,7 +55,7 @@ class SuperAdminController extends Controller
                 'color'        => '#4f46e5',
             ]);
 
-            User::create([
+            $owner = User::create([
                 'tenant_id' => $tenant->id,
                 'name'      => $validated['owner_name'],
                 'email'     => $validated['owner_email'],
@@ -59,7 +64,18 @@ class SuperAdminController extends Controller
             ]);
         });
 
-        return redirect()->route('superadmin.tenants.index')->with('success', 'テナントを作成しました。');
+        try {
+            Mail::send(
+                'emails.tenant.invitation',
+                ['tenant' => $tenant, 'user' => $owner, 'password' => $validated['owner_password']],
+                fn($m) => $m->to($owner->email)
+                             ->subject('【YUNARI RESERVE】ご利用開始のご案内 — ' . $tenant->company_name)
+            );
+        } catch (\Exception) {
+        }
+
+        return redirect()->route('superadmin.tenants.show', $tenant)
+            ->with('success', 'テナントを作成し、オーナーへ招待メールを送信しました。');
     }
 
     public function edit(Tenant $tenant)
@@ -90,5 +106,17 @@ class SuperAdminController extends Controller
         ]);
 
         return back()->with('success', 'テナントのステータスを変更しました。');
+    }
+
+    public function inquiries()
+    {
+        $inquiries = Inquiry::latest()->paginate(30);
+        return view('superadmin.inquiries.index', compact('inquiries'));
+    }
+
+    public function markContacted(Inquiry $inquiry)
+    {
+        $inquiry->update(['contacted_at' => now()]);
+        return back()->with('success', '対応済みとしてマークしました。');
     }
 }

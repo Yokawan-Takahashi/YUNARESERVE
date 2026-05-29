@@ -1,4 +1,4 @@
-@extends('public.layouts.app')
+﻿@extends('public.layouts.app')
 @section('title', 'キャンセル完了')
 @section('content')
 @php $brandColor = $tenant?->color ?? '#4f46e5'; @endphp
@@ -41,7 +41,7 @@
                 ご利用いただきありがとうございました。またのご予約をお待ちしております。
             </p>
 
-            <a href="{{ route('public.index') }}"
+            <a href="{{ route('public.index', $tenant) }}"
                class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium text-white transition brand-hover"
                style="background-color: {{ $brandColor }};">
                 イベント一覧へ戻る
@@ -50,3 +50,5 @@
     </div>
 </div>
 @endsection
+
+

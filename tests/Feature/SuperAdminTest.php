@@ -113,7 +113,7 @@ class SuperAdminTest extends TestCase
         ]);
 
         $this->actingAs($this->superadmin)
-            ->patch('/superadmin/tenants/' . $tenant->id . '/toggle');
+            ->patch('/superadmin/tenants/' . $tenant->slug . '/toggle');
 
         $this->assertEquals('suspended', $tenant->fresh()->status);
     }
@@ -128,7 +128,7 @@ class SuperAdminTest extends TestCase
         ]);
 
         $this->actingAs($this->superadmin)
-            ->patch('/superadmin/tenants/' . $tenant->id . '/toggle');
+            ->patch('/superadmin/tenants/' . $tenant->slug . '/toggle');
 
         $this->assertEquals('active', $tenant->fresh()->status);
     }

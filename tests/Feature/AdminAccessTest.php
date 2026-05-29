@@ -74,40 +74,30 @@ class AdminAccessTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /** staff 未満のroleがないが、roleレベル検証：adminのみ許可のルートにstaffは403 */
+    /** staff はadmin限定ルート（スタッフ管理）に 403 */
     public function test_staff_cannot_access_admin_only_route(): void
     {
-        // admin以上限定のルートをテスト用に登録
-        \Illuminate\Support\Facades\Route::get('/test-admin-only', function () {
-            return 'ok';
-        })->middleware(['auth', 'role:admin']);
-
         $staff = $this->makeUser('staff');
-        $response = $this->actingAs($staff)->get('/test-admin-only');
+        app()->instance('tenant', $this->tenant);
+        $response = $this->actingAs($staff)->get('/admin/staff');
         $response->assertStatus(403);
     }
 
-    /** adminはadmin限定ルートにアクセスできる */
+    /** admin はadmin限定ルート（スタッフ管理）に 200 */
     public function test_admin_can_access_admin_only_route(): void
     {
-        \Illuminate\Support\Facades\Route::get('/test-admin-only2', function () {
-            return 'ok';
-        })->middleware(['auth', 'role:admin']);
-
         $admin = $this->makeUser('admin');
-        $response = $this->actingAs($admin)->get('/test-admin-only2');
+        app()->instance('tenant', $this->tenant);
+        $response = $this->actingAs($admin)->get('/admin/staff');
         $response->assertStatus(200);
     }
 
-    /** ownerはadmin限定ルートにアクセスできる（上位roleは下位をカバー） */
+    /** owner はadmin限定ルート（スタッフ管理）に 200（上位roleは下位をカバー） */
     public function test_owner_can_access_admin_only_route(): void
     {
-        \Illuminate\Support\Facades\Route::get('/test-admin-only3', function () {
-            return 'ok';
-        })->middleware(['auth', 'role:admin']);
-
         $owner = $this->makeUser('owner');
-        $response = $this->actingAs($owner)->get('/test-admin-only3');
+        app()->instance('tenant', $this->tenant);
+        $response = $this->actingAs($owner)->get('/admin/staff');
         $response->assertStatus(200);
     }
 }

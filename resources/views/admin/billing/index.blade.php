@@ -89,7 +89,7 @@
         <h2 class="text-sm font-semibold text-slate-700 mb-4">スタンダードプラン 概要</h2>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="bg-slate-50 rounded-lg p-4 text-center">
-                <p class="text-2xl font-bold text-slate-800">¥9,800</p>
+                <p class="text-2xl font-bold text-slate-800">¥{{ number_format($plan['amount']) }}</p>
                 <p class="text-xs text-slate-500 mt-1">/ 月（税込）</p>
             </div>
             <div class="sm:col-span-2 space-y-2">
@@ -133,7 +133,7 @@
     {{-- Stripe情報 --}}
     <div class="card p-4">
         <p class="text-xs text-slate-400">
-            お支払い情報の更新・解約はStripeポータルから行えます。ご不明な点は <a href="mailto:support@yunari-reserve.jp" class="text-indigo-500 hover:underline">サポート</a> までお問い合わせください。
+            お支払い情報の更新・解約はStripeポータルから行えます。ご不明な点は <a href="mailto:{{ config('mail.from.address') }}" class="text-indigo-500 hover:underline">サポート</a> までお問い合わせください。
         </p>
     </div>
 

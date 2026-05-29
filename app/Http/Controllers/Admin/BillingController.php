@@ -23,7 +23,8 @@ class BillingController extends Controller
             }
         }
 
-        return view('admin.billing.index', compact('tenant', 'subscription', 'invoice'));
+        $plan = config('plans.standard');
+        return view('admin.billing.index', compact('tenant', 'subscription', 'invoice', 'plan'));
     }
 
     public function portal(Request $request)

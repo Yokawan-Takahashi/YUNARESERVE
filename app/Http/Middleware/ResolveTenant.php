@@ -16,17 +16,11 @@ class ResolveTenant
             return $next($request);
         }
 
-        $host = $request->getHost();
-        $slug = explode('.', $host)[0];
+        // {slug} は AppServiceProvider の Route::bind により SubstituteBindings が
+        // Tenant モデルに変換済み（404 は firstOrFail が投げる）
+        $tenant = $request->route('slug');
 
-        // ローカル開発用: APP_TENANT_SLUG が設定されていればそれを使う
-        if (app()->environment('local', 'testing') && $envSlug = config('app.tenant_slug')) {
-            $slug = $envSlug;
-        }
-
-        $tenant = Tenant::where('slug', $slug)->where('status', 'active')->first();
-
-        if ($tenant === null) {
+        if (! $tenant instanceof Tenant) {
             abort(404, 'テナントが見つかりません');
         }
 

@@ -61,7 +61,7 @@ class MasterCrudTest extends TestCase
         ]);
 
         // 公開側トップで表示されること
-        $response = $this->get('/');
+        $response = $this->get('/' . $this->tenant->slug . '/');
         $response->assertStatus(200);
         $response->assertSee('公開イベント');
     }
@@ -73,7 +73,7 @@ class MasterCrudTest extends TestCase
             'title' => '下書きイベント', 'status' => 'draft',
         ]);
 
-        $response = $this->get('/');
+        $response = $this->get('/' . $this->tenant->slug . '/');
         $response->assertDontSee('下書きイベント');
     }
 
@@ -104,7 +104,7 @@ class MasterCrudTest extends TestCase
             'start_time' => '09:00', 'capacity' => 5,
         ]);
 
-        $response = $this->get("/events/{$event->id}");
+        $response = $this->get("/{$this->tenant->slug}/events/{$event->id}");
         $response->assertStatus(200);
         $response->assertSee('詳細テスト');
         $response->assertSee('5');
