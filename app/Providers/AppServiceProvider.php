@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Listeners\HandleStripeWebhook;
+use App\Models\Setting;
 use App\Models\Tenant;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Event;
@@ -28,6 +29,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // 運用者画面で保存したシステム設定（Stripe/メール/料金）を config へ上書き適用
+        Setting::applyToConfig();
+
         Cashier::useCustomerModel(Tenant::class);
         Paginator::useTailwind();
         Event::listen(WebhookReceived::class, HandleStripeWebhook::class);

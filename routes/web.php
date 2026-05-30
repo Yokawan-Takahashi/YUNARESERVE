@@ -18,6 +18,7 @@ use App\Http\Controllers\PublicEventController;
 use App\Http\Controllers\ReservationLookupController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\SuperAdminDashboardController;
+use App\Http\Controllers\SuperAdminSettingsController;
 use Illuminate\Support\Facades\Route;
 
 // ─── LP ──────────────────────────────────────────────────────────────────────
@@ -118,6 +119,10 @@ Route::prefix('superadmin')->name('superadmin.')->middleware(['auth', 'role:supe
     // お問い合わせ管理
     Route::get('inquiries',                          [SuperAdminController::class, 'inquiries'])->name('inquiries.index');
     Route::patch('inquiries/{inquiry}/contact',      [SuperAdminController::class, 'markContacted'])->name('inquiries.contact');
+
+    // システム設定（Stripe・料金・メール）
+    Route::get('settings',                           [SuperAdminSettingsController::class, 'index'])->name('settings.index');
+    Route::put('settings',                           [SuperAdminSettingsController::class, 'update'])->name('settings.update');
 });
 
 // Stripe Webhook
